@@ -12,8 +12,25 @@ const listaInicial = [
 
 function IncidenciasList() {
   const [incidencias, setIncidencias] = useState(listaInicial);
+  const [titulo, setTitulo] = useState("");
   return (
     <div>
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          if (titulo == "") return;
+          setIncidencias([
+            ...incidencias,
+            crearIncidencia(titulo, "En proceso"),
+          ]);
+        }}
+      >
+        <input
+          type="text"
+          value={titulo}
+          onChange={(e) => setTitulo(e.target.value)}
+        />
+      </form>
       <ul>
         {incidencias.map((incidencia) => (
           <li key={incidencia.id}>
