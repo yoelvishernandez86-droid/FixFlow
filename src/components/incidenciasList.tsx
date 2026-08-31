@@ -1,31 +1,42 @@
 import { useState } from "react";
-import { type EstadoIncidencia, type Incidencia } from "./incidencia";
+import {
+  type EstadoIncidencia,
+  type Incidencia,
+  crearIncidencia,
+} from "./incidencia";
 
 import FormularioDeIncidencia from "./formularioDeIncidencia";
 import ModalEditarIncidencia from "./ModalEditarIncidencia";
 
 function IncidenciasList() {
   const [incidencias, setIncidencias] = useState<Incidencia[]>([]);
+
   const [incidenciaEditando, setIncidenciaEditando] =
     useState<Incidencia | null>(null);
 
+  // CREAR
   const handleCrearIncidencia = (
     titulo: string,
     estado: EstadoIncidencia,
     trabajador: string,
     comentario: string,
   ) => {
-    const nuevaIncidencia: Incidencia = {
-      id: crypto.randomUUID(),
+    const nuevaIncidencia = crearIncidencia(
       titulo,
       estado,
-      asignado: trabajador,
+      trabajador,
       comentario,
-    };
+    );
 
     setIncidencias([...incidencias, nuevaIncidencia]);
   };
 
+  // ELIMINAR
+  const handleEliminarIncidencia = (id: string) => {
+    setIncidencias(incidencias.filter((incidencia) => incidencia.id !== id));
+  };
+
+  // MODIFICAR
   const handleModificarIncidencia = (
     id: string,
     titulo: string,
@@ -70,6 +81,10 @@ function IncidenciasList() {
 
             <button onClick={() => setIncidenciaEditando(incidencia)}>
               Modificar incidencia
+            </button>
+
+            <button onClick={() => handleEliminarIncidencia(incidencia.id)}>
+              Eliminar incidencia
             </button>
           </li>
         ))}

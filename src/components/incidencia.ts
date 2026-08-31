@@ -12,7 +12,7 @@ export interface Incidencia {
   comentario?: string;
 }
 
-const crearIncidencia = (
+export const crearIncidencia = (
   titulo: string,
   estado: EstadoIncidencia,
   asignado: string = "",
