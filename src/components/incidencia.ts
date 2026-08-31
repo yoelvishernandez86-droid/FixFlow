@@ -1,10 +1,10 @@
-type EstadoIncidencia =
+export type EstadoIncidencia =
   | "pendiente de asignacion"
   | "asignada"
   | "En proceso"
   | "resuelta";
 
-interface Incidencia {
+export interface Incidencia {
   id: string;
   titulo: string;
   estado: EstadoIncidencia;
