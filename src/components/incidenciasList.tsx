@@ -1,15 +1,31 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   type EstadoIncidencia,
   type Incidencia,
   crearIncidencia,
 } from "./incidencia";
 
+import FiltroEstado from "./filtrarPorEstado";
 import FormularioDeIncidencia from "./formularioDeIncidencia";
 import ModalEditarIncidencia from "./ModalEditarIncidencia";
 
 function IncidenciasList() {
-  const [incidencias, setIncidencias] = useState<Incidencia[]>([]);
+  const [incidencias, setIncidencias] = useState<Incidencia[]>(() => {
+    const listaGuardada = localStorage.getItem("listaGuardada");
+
+    if (!listaGuardada) {
+      return [];
+    }
+
+    try {
+      return JSON.parse(listaGuardada);
+    } catch {
+      return [];
+    }
+  });
+  useEffect(() => {
+    localStorage.setItem("listaGuardada", JSON.stringify(incidencias));
+  }, [incidencias]);
 
   const [incidenciaEditando, setIncidenciaEditando] =
     useState<Incidencia | null>(null);
@@ -59,6 +75,11 @@ function IncidenciasList() {
     );
   };
 
+  const [estadoFiltro, setEstadoFiltro] = useState("todas");
+  const incidenciasFiltradas =
+    estadoFiltro === "todas"
+      ? incidencias
+      : incidencias.filter((incidencia) => incidencia.estado === estadoFiltro);
   return (
     <div className="dashboard">
       <section className="hero-panel">
@@ -102,9 +123,12 @@ function IncidenciasList() {
               <h2>Incidencias registradas</h2>
             </div>
           </div>
-
+          <FiltroEstado
+            estadoSeleccionado={estadoFiltro}
+            onCambiarEstado={setEstadoFiltro}
+          />
           <ul className="incidencias-list">
-            {incidencias.map((incidencia) => (
+            {incidenciasFiltradas.map((incidencia) => (
               <li className="incidencia-card" key={incidencia.id}>
                 <div className="incidencia-card-header">
                   <h3>{incidencia.titulo}</h3>
@@ -146,7 +170,9 @@ function IncidenciasList() {
           {incidencias.length === 0 && (
             <div className="empty-state">
               <h3>No hay incidencias todavía</h3>
-              <p>Crea la primera para empezar a gestionar el flujo de trabajo.</p>
+              <p>
+                Crea la primera para empezar a gestionar el flujo de trabajo.
+              </p>
             </div>
           )}
         </section>
