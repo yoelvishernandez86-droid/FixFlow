@@ -30,6 +30,7 @@ function FormularioDeIncidencia({
 
   return (
     <form
+      className="incidencia-form"
       title="Datos de incidencia"
       onSubmit={(e) => {
         e.preventDefault();
@@ -44,42 +45,62 @@ function FormularioDeIncidencia({
         setComentario("");
       }}
     >
-      <label htmlFor="title">Incidencia</label>
-      <input
-        id="title"
-        type="text"
-        value={titulo}
-        onChange={(e) => setTitulo(e.target.value)}
-      />
+      <div className="form-heading">
+        <span className="form-kicker">
+          {modo === "crear" ? "Nueva incidencia" : "Editar incidencia"}
+        </span>
+        <h2>{modo === "crear" ? "Registrar caso" : "Actualizar datos"}</h2>
+      </div>
 
-      <label htmlFor="state">Estado</label>
-      <select
-        id="state"
-        value={estado}
-        onChange={(e) => setEstado(e.target.value as EstadoIncidencia)}
-      >
-        <option value="pendiente de asignacion">Pendiente de asignación</option>
-        <option value="asignada">Asignada</option>
-        <option value="en proceso">En proceso</option>
-        <option value="resuelta">Resuelta</option>
-      </select>
+      <div className="form-field">
+        <label htmlFor="title">Incidencia</label>
+        <input
+          id="title"
+          type="text"
+          value={titulo}
+          onChange={(e) => setTitulo(e.target.value)}
+          placeholder="Describe el problema"
+        />
+      </div>
 
-      <label htmlFor="worker">Trabajador</label>
-      <input
-        id="worker"
-        type="text"
-        value={trabajador}
-        onChange={(e) => setTrabajador(e.target.value)}
-      />
+      <div className="form-field">
+        <label htmlFor="state">Estado</label>
+        <select
+          id="state"
+          value={estado}
+          onChange={(e) => setEstado(e.target.value as EstadoIncidencia)}
+        >
+          <option value="pendiente de asignacion">
+            Pendiente de asignación
+          </option>
+          <option value="asignada">Asignada</option>
+          <option value="en proceso">En proceso</option>
+          <option value="resuelta">Resuelta</option>
+        </select>
+      </div>
 
-      <label htmlFor="commentary">Comentario</label>
-      <textarea
-        id="commentary"
-        value={comentario}
-        onChange={(e) => setComentario(e.target.value)}
-      />
+      <div className="form-field">
+        <label htmlFor="worker">Trabajador</label>
+        <input
+          id="worker"
+          type="text"
+          value={trabajador}
+          onChange={(e) => setTrabajador(e.target.value)}
+          placeholder="Responsable asignado"
+        />
+      </div>
 
-      <button type="submit">
+      <div className="form-field">
+        <label htmlFor="commentary">Comentario</label>
+        <textarea
+          id="commentary"
+          value={comentario}
+          onChange={(e) => setComentario(e.target.value)}
+          placeholder="Añade contexto o avances"
+        />
+      </div>
+
+      <button className="primary-button" type="submit">
         {modo === "crear" ? "Crear incidencia" : "Modificar incidencia"}
       </button>
     </form>

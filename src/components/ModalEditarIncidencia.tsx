@@ -36,16 +36,37 @@ function ModalEditarIncidencia({
   };
 
   return (
-    <div>
-      <h2>Modificar incidencia</h2>
+    <div
+      className="modal-overlay"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) {
+          cerrarModal();
+        }
+      }}
+    >
+      <div className="modal-card">
+        <div className="modal-header">
+          <div>
+            <span className="form-kicker">Edicion</span>
+            <h2>Modificar incidencia</h2>
+          </div>
 
-      <FormularioDeIncidencia
-        onGuardar={modificarIncidencia}
-        modo="editar"
-        incidenciaInicial={incidencia}
-      />
+          <button
+            className="icon-button"
+            onClick={cerrarModal}
+            type="button"
+            aria-label="Cerrar modal"
+          >
+            ×
+          </button>
+        </div>
 
-      <button onClick={cerrarModal}>Cerrar</button>
+        <FormularioDeIncidencia
+          onGuardar={modificarIncidencia}
+          modo="editar"
+          incidenciaInicial={incidencia}
+        />
+      </div>
     </div>
   );
 }
