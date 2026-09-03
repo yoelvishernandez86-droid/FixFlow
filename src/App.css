@@ -287,6 +287,52 @@ textarea {
   transform: translateY(-1px);
 }
 
+.filtro-texto {
+  display: grid;
+  gap: 10px;
+  margin-bottom: 20px;
+  padding: 16px 18px;
+  border: 1px solid rgba(104, 77, 54, 0.12);
+  border-radius: var(--radius-md);
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.72), rgba(255, 245, 236, 0.82));
+}
+
+.filtro-texto-label {
+  color: var(--primary-dark);
+  font-size: 0.82rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.filtro-texto-input {
+  width: 100%;
+  padding: 14px 18px;
+  border: 1px solid rgba(104, 77, 54, 0.18);
+  border-radius: 999px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(252, 236, 224, 0.95));
+  color: var(--text);
+  font-weight: 700;
+  box-shadow: 0 10px 24px rgba(154, 76, 33, 0.08);
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
+}
+
+.filtro-texto-input::placeholder {
+  color: rgba(91, 74, 60, 0.68);
+  font-weight: 500;
+}
+
+.filtro-texto-input:focus {
+  outline: none;
+  border-color: rgba(201, 111, 59, 0.65);
+  box-shadow: 0 0 0 4px rgba(201, 111, 59, 0.14);
+  transform: translateY(-1px);
+}
+
 .incidencias-list {
   display: grid;
   gap: 16px;

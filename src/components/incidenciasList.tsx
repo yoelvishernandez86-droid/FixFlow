@@ -8,6 +8,7 @@ import {
 import FiltroEstado from "./filtrarPorEstado";
 import FormularioDeIncidencia from "./formularioDeIncidencia";
 import ModalEditarIncidencia from "./ModalEditarIncidencia";
+import FiltrarPorTitulo from "./filtrarPorTitulo";
 
 function IncidenciasList() {
   const [incidencias, setIncidencias] = useState<Incidencia[]>(() => {
@@ -76,10 +77,22 @@ function IncidenciasList() {
   };
 
   const [estadoFiltro, setEstadoFiltro] = useState("todas");
-  const incidenciasFiltradas =
+  const [textoseleccionado, setTextoSeleccionado] = useState("");
+  let incidenciasFiltradas =
     estadoFiltro === "todas"
-      ? incidencias
-      : incidencias.filter((incidencia) => incidencia.estado === estadoFiltro);
+      ? incidencias.filter((incidencia) =>
+          incidencia.titulo
+            .toUpperCase()
+            .startsWith(textoseleccionado.toUpperCase()),
+        )
+      : incidencias
+          .filter((incidencia) => incidencia.estado === estadoFiltro)
+          .filter((incidencia) =>
+            incidencia.titulo
+              .toUpperCase()
+              .startsWith(textoseleccionado.toUpperCase()),
+          );
+
   return (
     <div className="dashboard">
       <section className="hero-panel">
@@ -126,6 +139,10 @@ function IncidenciasList() {
           <FiltroEstado
             estadoSeleccionado={estadoFiltro}
             onCambiarEstado={setEstadoFiltro}
+          />
+          <FiltrarPorTitulo
+            textoseleccionado={textoseleccionado}
+            onCambiarTexto={setTextoSeleccionado}
           />
           <ul className="incidencias-list">
             {incidenciasFiltradas.map((incidencia) => (
