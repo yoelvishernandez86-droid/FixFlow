@@ -9,21 +9,22 @@ import FiltroEstado from "./filtrarPorEstado";
 import FormularioDeIncidencia from "./formularioDeIncidencia";
 import ModalEditarIncidencia from "./ModalEditarIncidencia";
 import FiltrarPorTitulo from "./filtrarPorTitulo";
+import { resumeToPipeableStream } from "react-dom/server";
 
 function IncidenciasList() {
-  const [incidencias, setIncidencias] = useState<Incidencia[]>(() => {
-    const listaGuardada = localStorage.getItem("listaGuardada");
+  const [incidencias, setIncidencias] = useState<Incidencia[]>([]);
+  const obtenerIncidencias = async () => {
+    const respuesta = await fetch("/api/incidencias");
 
-    if (!listaGuardada) {
-      return [];
-    }
+    const listaIncidencias = await respuesta.json();
 
-    try {
-      return JSON.parse(listaGuardada);
-    } catch {
-      return [];
-    }
-  });
+    return setIncidencias(listaIncidencias);
+  };
+
+  useEffect(() => {
+    obtenerIncidencias();
+  }, []);
+
   useEffect(() => {
     localStorage.setItem("listaGuardada", JSON.stringify(incidencias));
   }, [incidencias]);
@@ -32,7 +33,7 @@ function IncidenciasList() {
     useState<Incidencia | null>(null);
 
   // CREAR
-  const handleCrearIncidencia = (
+  const handleCrearIncidencia = async (
     titulo: string,
     estado: EstadoIncidencia,
     trabajador: string,
@@ -45,33 +46,56 @@ function IncidenciasList() {
       comentario,
     );
 
-    setIncidencias([...incidencias, nuevaIncidencia]);
+    const respuesta = await fetch("/api/incidencias", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(nuevaIncidencia),
+    });
+
+    const incidenciaCreada = await respuesta.json();
+
+    setIncidencias([...incidencias, incidenciaCreada]);
   };
 
   // ELIMINAR
-  const handleEliminarIncidencia = (id: string) => {
-    setIncidencias(incidencias.filter((incidencia) => incidencia.id !== id));
+  const handleEliminarIncidencia = async (id: string) => {
+    const respuesta = await fetch(`/api/incidencias/${id}`, {
+      method: "DELETE",
+    });
+    if (respuesta.ok) {
+      setIncidencias(incidencias.filter((incidencia) => incidencia.id !== id));
+    } else {
+      alert("Incidencia no encontrada");
+    }
   };
 
   // MODIFICAR
-  const handleModificarIncidencia = (
+  const handleModificarIncidencia = async (
     id: string,
     titulo: string,
     estado: EstadoIncidencia,
     trabajador: string,
     comentario: string,
   ) => {
+    const respuesta = await fetch(`/api/incidencias/${id}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        titulo,
+        estado,
+        asignado: trabajador,
+        comentario,
+      }),
+    });
+    const incidenciaModificada = await respuesta.json();
+
     setIncidencias(
       incidencias.map((incidencia) =>
-        incidencia.id === id
-          ? {
-              ...incidencia,
-              titulo,
-              estado,
-              asignado: trabajador,
-              comentario,
-            }
-          : incidencia,
+        incidencia.id === id ? incidenciaModificada : incidencia,
       ),
     );
   };
