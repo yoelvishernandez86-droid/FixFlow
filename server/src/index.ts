@@ -20,15 +20,7 @@ app.get("/", (req, res) => {
   res.send("Servidor de FixFlow funcionando");
 });
 
-const incidencias: Incidencia[] = [
-  {
-    id: "1",
-    titulo: "Habitación 3 sucia",
-    estado: "resuelta",
-    asignado: "Pepe",
-    comentario: "Se me quedó la llave dentro",
-  },
-];
+const incidencias: Incidencia[] = [];
 
 app.get("/api/incidencias", (req, res) => {
   res.json(incidencias);

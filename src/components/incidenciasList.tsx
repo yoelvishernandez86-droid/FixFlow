@@ -9,12 +9,11 @@ import FiltroEstado from "./filtrarPorEstado";
 import FormularioDeIncidencia from "./formularioDeIncidencia";
 import ModalEditarIncidencia from "./ModalEditarIncidencia";
 import FiltrarPorTitulo from "./filtrarPorTitulo";
-import { resumeToPipeableStream } from "react-dom/server";
 
 function IncidenciasList() {
   const [incidencias, setIncidencias] = useState<Incidencia[]>([]);
   const obtenerIncidencias = async () => {
-    const respuesta = await fetch("/api/incidencias");
+    const respuesta = await fetch("http://localhost:3000/api/incidencias");
 
     const listaIncidencias = await respuesta.json();
 
@@ -24,10 +23,6 @@ function IncidenciasList() {
   useEffect(() => {
     obtenerIncidencias();
   }, []);
-
-  useEffect(() => {
-    localStorage.setItem("listaGuardada", JSON.stringify(incidencias));
-  }, [incidencias]);
 
   const [incidenciaEditando, setIncidenciaEditando] =
     useState<Incidencia | null>(null);
@@ -46,7 +41,7 @@ function IncidenciasList() {
       comentario,
     );
 
-    const respuesta = await fetch("/api/incidencias", {
+    const respuesta = await fetch("http://localhost:3000/api/incidencias", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -61,9 +56,12 @@ function IncidenciasList() {
 
   // ELIMINAR
   const handleEliminarIncidencia = async (id: string) => {
-    const respuesta = await fetch(`/api/incidencias/${id}`, {
-      method: "DELETE",
-    });
+    const respuesta = await fetch(
+      `http://localhost:3000/api/incidencias/${id}`,
+      {
+        method: "DELETE",
+      },
+    );
     if (respuesta.ok) {
       setIncidencias(incidencias.filter((incidencia) => incidencia.id !== id));
     } else {
@@ -79,18 +77,21 @@ function IncidenciasList() {
     trabajador: string,
     comentario: string,
   ) => {
-    const respuesta = await fetch(`/api/incidencias/${id}`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
+    const respuesta = await fetch(
+      `http://localhost:3000/api/incidencias/${id}`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          titulo,
+          estado,
+          asignado: trabajador,
+          comentario,
+        }),
       },
-      body: JSON.stringify({
-        titulo,
-        estado,
-        asignado: trabajador,
-        comentario,
-      }),
-    });
+    );
     const incidenciaModificada = await respuesta.json();
 
     setIncidencias(
