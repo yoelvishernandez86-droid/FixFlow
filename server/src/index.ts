@@ -1,3 +1,4 @@
+import { pool } from "./db.js";
 import express from "express";
 import cors from "cors";
 
@@ -20,46 +21,70 @@ app.get("/", (req, res) => {
   res.send("Servidor de FixFlow funcionando");
 });
 
-const incidencias: Incidencia[] = [];
+app.get("/api/incidencias", async (req, res) => {
+  const resultado = await pool.query("SELECT * FROM incidencias");
 
-app.get("/api/incidencias", (req, res) => {
-  res.json(incidencias);
+  res.json(resultado.rows);
 });
 
-app.post("/api/incidencias", (req, res) => {
+app.post("/api/incidencias", async (req, res) => {
   const nuevaIncidencia: Incidencia = req.body;
 
-  incidencias.push(nuevaIncidencia);
+  const resultado = await pool.query(
+    `INSERT INTO incidencias (id, titulo, estado, asignado, comentario)
+     VALUES ($1, $2, $3, $4, $5)
+     RETURNING *`,
+    [
+      nuevaIncidencia.id,
+      nuevaIncidencia.titulo,
+      nuevaIncidencia.estado,
+      nuevaIncidencia.asignado,
+      nuevaIncidencia.comentario,
+    ],
+  );
 
-  res.status(201).json(nuevaIncidencia);
+  res.status(201).json(resultado.rows[0]);
 });
 
-app.put("/api/incidencias/:id", (req, res) => {
+app.put("/api/incidencias/:id", async (req, res) => {
   const { id } = req.params;
+  const { titulo, estado, asignado, comentario } = req.body;
 
-  const incidencia = incidencias.find((incidencia) => incidencia.id === id);
+  const resultado = await pool.query(
+    `UPDATE incidencias
+     SET titulo = $1,
+         estado = $2,
+         asignado = $3,
+         comentario = $4
+     WHERE id = $5
+     RETURNING *`,
+    [titulo, estado, asignado, comentario, id],
+  );
 
-  if (!incidencia) {
-    return res.status(404).json({ mensaje: "Incidencia no encontrada" });
-  }
-
-  Object.assign(incidencia, req.body);
-
-  res.json(incidencia);
-});
-
-app.delete("/api/incidencias/:id", (req, res) => {
-  const { id } = req.params;
-
-  const indice = incidencias.findIndex((incidencia) => incidencia.id === id);
-
-  if (indice === -1) {
+  if (resultado.rows.length === 0) {
     return res.status(404).json({
       mensaje: "Incidencia no encontrada",
     });
   }
 
-  incidencias.splice(indice, 1);
+  res.json(resultado.rows[0]);
+});
+
+app.delete("/api/incidencias/:id", async (req, res) => {
+  const { id } = req.params;
+
+  const resultado = await pool.query(
+    `DELETE FROM incidencias
+     WHERE id = $1
+     RETURNING *`,
+    [id],
+  );
+
+  if (resultado.rows.length === 0) {
+    return res.status(404).json({
+      mensaje: "Incidencia no encontrada",
+    });
+  }
 
   res.json({
     mensaje: "Incidencia eliminada",
