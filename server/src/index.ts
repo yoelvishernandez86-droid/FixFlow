@@ -1,6 +1,8 @@
 import { pool } from "./db.js";
 import express from "express";
 import cors from "cors";
+import bcrypt from "bcrypt";
+import { randomUUID } from "crypto";
 
 const app = express();
 
@@ -89,6 +91,69 @@ app.delete("/api/incidencias/:id", async (req, res) => {
   res.json({
     mensaje: "Incidencia eliminada",
   });
+});
+
+app.post("/api/usuarios", async (req, res) => {
+  try {
+    const { nombre, email, password, rol } = req.body;
+
+    const id = randomUUID();
+
+    const passwordHash = await bcrypt.hash(password, 10);
+
+    const resultado = await pool.query(
+      `INSERT INTO usuarios (id, nombre, email, password_hash, rol)
+       VALUES ($1, $2, $3, $4, $5)
+       RETURNING id, nombre, email, rol`,
+      [id, nombre, email, passwordHash, rol],
+    );
+
+    res.status(201).json(resultado.rows[0]);
+  } catch (error) {
+    console.error(error);
+
+    res.status(500).json({
+      mensaje: "Error al crear el usuario",
+    });
+  }
+});
+
+app.post("/api/login", async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    const resultado = await pool.query(
+      `SELECT id,nombre,email,password_hash,rol 
+      From usuarios
+      WHERE email = $1`,
+      [email],
+    );
+
+    if (resultado.rows.length === 0) {
+      return res
+        .status(401)
+        .json({ mensaje: "Email o contraseña incorrectos" });
+    }
+    const usuario = resultado.rows[0];
+    const passwordCorrecta = await bcrypt.compare(
+      password,
+      usuario.password_hash,
+    );
+
+    if (!passwordCorrecta) {
+      return res.status(401).json({
+        mensaje: "email o contraseña incorrectos",
+      });
+    }
+    res.json({
+      id: usuario.id,
+      nombre: usuario.nombre,
+      email: usuario.email,
+      rol: usuario.rol,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ mensaje: "Error al iniciar sesiòn" });
+  }
 });
 
 app.listen(PORT, () => {
