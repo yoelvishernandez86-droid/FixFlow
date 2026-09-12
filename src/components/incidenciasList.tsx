@@ -13,7 +13,13 @@ import FiltrarPorTitulo from "./filtrarPorTitulo";
 function IncidenciasList() {
   const [incidencias, setIncidencias] = useState<Incidencia[]>([]);
   const obtenerIncidencias = async () => {
-    const respuesta = await fetch("http://localhost:3000/api/incidencias");
+    const token = localStorage.getItem("token");
+
+    const respuesta = await fetch("http://localhost:3000/api/incidencias", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
 
     const listaIncidencias = await respuesta.json();
 
@@ -40,11 +46,13 @@ function IncidenciasList() {
       trabajador,
       comentario,
     );
+    const token = localStorage.getItem("token");
 
     const respuesta = await fetch("http://localhost:3000/api/incidencias", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify(nuevaIncidencia),
     });
@@ -56,12 +64,18 @@ function IncidenciasList() {
 
   // ELIMINAR
   const handleEliminarIncidencia = async (id: string) => {
+    const token = localStorage.getItem("token");
+
     const respuesta = await fetch(
       `http://localhost:3000/api/incidencias/${id}`,
       {
         method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       },
     );
+
     if (respuesta.ok) {
       setIncidencias(incidencias.filter((incidencia) => incidencia.id !== id));
     } else {
@@ -77,12 +91,14 @@ function IncidenciasList() {
     trabajador: string,
     comentario: string,
   ) => {
+    const token = localStorage.getItem("token");
     const respuesta = await fetch(
       `http://localhost:3000/api/incidencias/${id}`,
       {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
           titulo,

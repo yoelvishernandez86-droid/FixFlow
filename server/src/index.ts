@@ -61,7 +61,7 @@ app.get("/api/incidencias", verificarToken, async (req, res) => {
   res.json(resultado.rows);
 });
 
-app.post("/api/incidencias", async (req, res) => {
+app.post("/api/incidencias", verificarToken, async (req, res) => {
   const nuevaIncidencia: Incidencia = req.body;
 
   const resultado = await pool.query(
@@ -80,7 +80,7 @@ app.post("/api/incidencias", async (req, res) => {
   res.status(201).json(resultado.rows[0]);
 });
 
-app.put("/api/incidencias/:id", async (req, res) => {
+app.put("/api/incidencias/:id", verificarToken, async (req, res) => {
   const { id } = req.params;
   const { titulo, estado, asignado, comentario } = req.body;
 
@@ -104,7 +104,7 @@ app.put("/api/incidencias/:id", async (req, res) => {
   res.json(resultado.rows[0]);
 });
 
-app.delete("/api/incidencias/:id", async (req, res) => {
+app.delete("/api/incidencias/:id", verificarToken, async (req, res) => {
   const { id } = req.params;
 
   const resultado = await pool.query(
