@@ -21,7 +21,17 @@ if (!jwtSecretEnv) {
 
 const JWT_SECRET: string = jwtSecretEnv;
 
-function verificarToken(req: Request, res: Response, next: NextFunction) {
+type UsuarioToken = {
+  id: string;
+  email: string;
+  rol: string;
+};
+
+type RequestConUsuario = Request & {
+  usuario?: UsuarioToken;
+};
+
+function verificarToken(req: RequestConUsuario, res: Response, next: NextFunction) {
   const authHeader = req.headers.authorization;
 
   if (!authHeader) {
@@ -33,7 +43,8 @@ function verificarToken(req: Request, res: Response, next: NextFunction) {
   const token = authHeader.split(" ")[1];
 
   try {
-    jwt.verify(token, JWT_SECRET);
+    const usuario = jwt.verify(token, JWT_SECRET) as UsuarioToken;
+    req.usuario = usuario;
 
     next();
   } catch (error) {
@@ -41,6 +52,26 @@ function verificarToken(req: Request, res: Response, next: NextFunction) {
       mensaje: "Token inválido o caducado",
     });
   }
+}
+
+function soloAdmin(
+  req: RequestConUsuario,
+  res: Response,
+  next: NextFunction,
+) {
+  if (!req.usuario) {
+    return res.status(401).json({
+      mensaje: "Debes iniciar sesión",
+    });
+  }
+
+  if (req.usuario.rol !== "admin") {
+    return res.status(403).json({
+      mensaje: "Solo un administrador puede realizar esta acción",
+    });
+  }
+
+  next();
 }
 
 type Incidencia = {
@@ -125,7 +156,7 @@ app.delete("/api/incidencias/:id", verificarToken, async (req, res) => {
   });
 });
 
-app.post("/api/usuarios", async (req, res) => {
+app.post("/api/usuarios",verificarToken,soloAdmin, async (req, res) => {
   try {
     const { nombre, email, password, rol } = req.body;
 
