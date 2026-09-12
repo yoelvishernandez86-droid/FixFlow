@@ -10,28 +10,63 @@ import FormularioDeIncidencia from "./formularioDeIncidencia";
 import ModalEditarIncidencia from "./ModalEditarIncidencia";
 import FiltrarPorTitulo from "./filtrarPorTitulo";
 
-function IncidenciasList() {
+type Props = {
+  onSesionExpirada: () => void;
+};
+
+function IncidenciasList({ onSesionExpirada }: Props) {
   const [incidencias, setIncidencias] = useState<Incidencia[]>([]);
-  const obtenerIncidencias = async () => {
-    const token = localStorage.getItem("token");
-
-    const respuesta = await fetch("http://localhost:3000/api/incidencias", {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-
-    const listaIncidencias = await respuesta.json();
-
-    return setIncidencias(listaIncidencias);
-  };
-
-  useEffect(() => {
-    obtenerIncidencias();
-  }, []);
-
   const [incidenciaEditando, setIncidenciaEditando] =
     useState<Incidencia | null>(null);
+  const [estadoFiltro, setEstadoFiltro] = useState("todas");
+  const [textoseleccionado, setTextoSeleccionado] = useState("");
+
+  // OBTENER
+  useEffect(() => {
+    const controller = new AbortController();
+
+    const obtenerIncidencias = async () => {
+      try {
+        const token = localStorage.getItem("token");
+
+        const respuesta = await fetch(
+          "http://localhost:3000/api/incidencias",
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+            signal: controller.signal,
+          },
+        );
+
+        if (controller.signal.aborted) return;
+
+        if (respuesta.status === 401) {
+          onSesionExpirada();
+          return;
+        }
+
+        if (!respuesta.ok) {
+          alert("No se pudieron obtener las incidencias");
+          return;
+        }
+
+        const listaIncidencias = await respuesta.json();
+
+        if (!controller.signal.aborted) {
+          setIncidencias(listaIncidencias);
+        }
+      } catch {
+        if (!controller.signal.aborted) {
+          alert("No se pudo conectar con el servidor");
+        }
+      }
+    };
+
+    void obtenerIncidencias();
+
+    return () => controller.abort();
+  }, [onSesionExpirada]);
 
   // CREAR
   const handleCrearIncidencia = async (
@@ -40,46 +75,76 @@ function IncidenciasList() {
     trabajador: string,
     comentario: string,
   ) => {
-    const nuevaIncidencia = crearIncidencia(
-      titulo,
-      estado,
-      trabajador,
-      comentario,
-    );
-    const token = localStorage.getItem("token");
+    try {
+      const nuevaIncidencia = crearIncidencia(
+        titulo,
+        estado,
+        trabajador,
+        comentario,
+      );
 
-    const respuesta = await fetch("http://localhost:3000/api/incidencias", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify(nuevaIncidencia),
-    });
+      const token = localStorage.getItem("token");
 
-    const incidenciaCreada = await respuesta.json();
+      const respuesta = await fetch(
+        "http://localhost:3000/api/incidencias",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(nuevaIncidencia),
+        },
+      );
 
-    setIncidencias([...incidencias, incidenciaCreada]);
+      if (respuesta.status === 401) {
+        onSesionExpirada();
+        return;
+      }
+
+      if (!respuesta.ok) {
+        alert("No se pudo crear la incidencia");
+        return;
+      }
+
+      const incidenciaCreada = await respuesta.json();
+
+      setIncidencias((actuales) => [...actuales, incidenciaCreada]);
+    } catch {
+      alert("No se pudo conectar con el servidor");
+    }
   };
 
   // ELIMINAR
   const handleEliminarIncidencia = async (id: string) => {
-    const token = localStorage.getItem("token");
+    try {
+      const token = localStorage.getItem("token");
 
-    const respuesta = await fetch(
-      `http://localhost:3000/api/incidencias/${id}`,
-      {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${token}`,
+      const respuesta = await fetch(
+        `http://localhost:3000/api/incidencias/${id}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         },
-      },
-    );
+      );
 
-    if (respuesta.ok) {
-      setIncidencias(incidencias.filter((incidencia) => incidencia.id !== id));
-    } else {
-      alert("Incidencia no encontrada");
+      if (respuesta.status === 401) {
+        onSesionExpirada();
+        return;
+      }
+
+      if (!respuesta.ok) {
+        alert("No se pudo eliminar la incidencia");
+        return;
+      }
+
+      setIncidencias((actuales) =>
+        actuales.filter((incidencia) => incidencia.id !== id),
+      );
+    } catch {
+      alert("No se pudo conectar con el servidor");
     }
   };
 
@@ -91,48 +156,58 @@ function IncidenciasList() {
     trabajador: string,
     comentario: string,
   ) => {
-    const token = localStorage.getItem("token");
-    const respuesta = await fetch(
-      `http://localhost:3000/api/incidencias/${id}`,
-      {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          titulo,
-          estado,
-          asignado: trabajador,
-          comentario,
-        }),
-      },
-    );
-    const incidenciaModificada = await respuesta.json();
+    try {
+      const token = localStorage.getItem("token");
 
-    setIncidencias(
-      incidencias.map((incidencia) =>
-        incidencia.id === id ? incidenciaModificada : incidencia,
-      ),
-    );
+      const respuesta = await fetch(
+        `http://localhost:3000/api/incidencias/${id}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            titulo,
+            estado,
+            asignado: trabajador,
+            comentario,
+          }),
+        },
+      );
+
+      if (respuesta.status === 401) {
+        onSesionExpirada();
+        return;
+      }
+
+      if (!respuesta.ok) {
+        alert("No se pudo modificar la incidencia");
+        return;
+      }
+
+      const incidenciaModificada = await respuesta.json();
+
+      setIncidencias((actuales) =>
+        actuales.map((incidencia) =>
+          incidencia.id === id ? incidenciaModificada : incidencia,
+        ),
+      );
+    } catch {
+      alert("No se pudo conectar con el servidor");
+    }
   };
 
-  const [estadoFiltro, setEstadoFiltro] = useState("todas");
-  const [textoseleccionado, setTextoSeleccionado] = useState("");
-  let incidenciasFiltradas =
-    estadoFiltro === "todas"
-      ? incidencias.filter((incidencia) =>
-          incidencia.titulo
-            .toUpperCase()
-            .startsWith(textoseleccionado.toUpperCase()),
-        )
-      : incidencias
-          .filter((incidencia) => incidencia.estado === estadoFiltro)
-          .filter((incidencia) =>
-            incidencia.titulo
-              .toUpperCase()
-              .startsWith(textoseleccionado.toUpperCase()),
-          );
+  const incidenciasFiltradas = incidencias.filter((incidencia) => {
+    const coincideEstado =
+      estadoFiltro === "todas" || incidencia.estado === estadoFiltro;
+
+    const coincideTitulo = incidencia.titulo
+      .toUpperCase()
+      .startsWith(textoseleccionado.toUpperCase());
+
+    return coincideEstado && coincideTitulo;
+  });
 
   return (
     <div className="dashboard">
@@ -151,6 +226,7 @@ function IncidenciasList() {
             <span>Total</span>
             <strong>{incidencias.length}</strong>
           </div>
+
           <div className="stat-card">
             <span>Abiertas</span>
             <strong>
@@ -177,14 +253,17 @@ function IncidenciasList() {
               <h2>Incidencias registradas</h2>
             </div>
           </div>
+
           <FiltroEstado
             estadoSeleccionado={estadoFiltro}
             onCambiarEstado={setEstadoFiltro}
           />
+
           <FiltrarPorTitulo
             textoseleccionado={textoseleccionado}
             onCambiarTexto={setTextoSeleccionado}
           />
+
           <ul className="incidencias-list">
             {incidenciasFiltradas.map((incidencia) => (
               <li className="incidencia-card" key={incidencia.id}>
@@ -198,6 +277,7 @@ function IncidenciasList() {
                     <dt>Asignado</dt>
                     <dd>{incidencia.asignado || "Sin asignar"}</dd>
                   </div>
+
                   <div>
                     <dt>Comentario</dt>
                     <dd>{incidencia.comentario || "Sin comentarios"}</dd>
