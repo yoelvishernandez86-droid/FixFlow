@@ -38,7 +38,7 @@ function App() {
       </button>
       {rol === "admin" && <p>Usuario administrador</p>}
       {rol === "admin" && <CrearUsuarios />}
-      <IncidenciasList onSesionExpirada={cerrarSesion} />
+      <IncidenciasList onSesionExpirada={cerrarSesion} rol={rol} />
     </main>
   );
 }
