@@ -12,15 +12,22 @@ import FiltrarPorTitulo from "./filtrarPorTitulo";
 
 type Props = {
   onSesionExpirada: () => void;
+  rol: string | null;
 };
 
-function IncidenciasList({ onSesionExpirada }: Props) {
+type Trabajador = {
+  id: string;
+  nombre: string;
+  email: string;
+};
+
+function IncidenciasList({ onSesionExpirada, rol }: Props) {
   const [incidencias, setIncidencias] = useState<Incidencia[]>([]);
   const [incidenciaEditando, setIncidenciaEditando] =
     useState<Incidencia | null>(null);
   const [estadoFiltro, setEstadoFiltro] = useState("todas");
   const [textoseleccionado, setTextoSeleccionado] = useState("");
-
+  const [trabajadores, setTrabajadores] = useState<Trabajador[]>([]);
   // OBTENER
   useEffect(() => {
     const controller = new AbortController();
@@ -29,15 +36,12 @@ function IncidenciasList({ onSesionExpirada }: Props) {
       try {
         const token = localStorage.getItem("token");
 
-        const respuesta = await fetch(
-          "http://localhost:3000/api/incidencias",
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-            signal: controller.signal,
+        const respuesta = await fetch("http://localhost:3000/api/incidencias", {
+          headers: {
+            Authorization: `Bearer ${token}`,
           },
-        );
+          signal: controller.signal,
+        });
 
         if (controller.signal.aborted) return;
 
@@ -68,34 +72,72 @@ function IncidenciasList({ onSesionExpirada }: Props) {
     return () => controller.abort();
   }, [onSesionExpirada]);
 
+  useEffect(() => {
+    if (rol !== "admin") return;
+
+    const obtenerTrabajadores = async () => {
+      try {
+        const token = localStorage.getItem("token");
+
+        const respuesta = await fetch(
+          "http://localhost:3000/api/trabajadores",
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          },
+        );
+
+        if (respuesta.status === 401) {
+          onSesionExpirada();
+          return;
+        }
+
+        if (!respuesta.ok) {
+          alert("No se pudieron obtener los trabajadores");
+          return;
+        }
+
+        const listaTrabajadores = await respuesta.json();
+
+        setTrabajadores(listaTrabajadores);
+      } catch {
+        alert("No se pudo conectar con el servidor");
+      }
+    };
+
+    void obtenerTrabajadores();
+  }, [rol, onSesionExpirada]);
+
   // CREAR
   const handleCrearIncidencia = async (
     titulo: string,
     estado: EstadoIncidencia,
-    trabajador: string,
+    trabajadorId: string,
     comentario: string,
   ) => {
     try {
+      const trabajadorSeleccionado = trabajadores.find(
+        (trabajador) => trabajador.id === trabajadorId,
+      );
       const nuevaIncidencia = crearIncidencia(
         titulo,
         estado,
-        trabajador,
+        trabajadorSeleccionado?.nombre ?? "",
+        trabajadorId,
         comentario,
       );
 
       const token = localStorage.getItem("token");
 
-      const respuesta = await fetch(
-        "http://localhost:3000/api/incidencias",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify(nuevaIncidencia),
+      const respuesta = await fetch("http://localhost:3000/api/incidencias", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
-      );
+        body: JSON.stringify(nuevaIncidencia),
+      });
 
       if (respuesta.status === 401) {
         onSesionExpirada();
@@ -241,10 +283,13 @@ function IncidenciasList({ onSesionExpirada }: Props) {
       </section>
 
       <section className="content-grid">
-        <FormularioDeIncidencia
-          onGuardar={handleCrearIncidencia}
-          modo="crear"
-        />
+        {rol === "admin" && (
+          <FormularioDeIncidencia
+            onGuardar={handleCrearIncidencia}
+            trabajadores={trabajadores}
+            modo="crear"
+          />
+        )}
 
         <section className="incidencias-panel">
           <div className="panel-header">
@@ -284,23 +329,25 @@ function IncidenciasList({ onSesionExpirada }: Props) {
                   </div>
                 </dl>
 
-                <div className="card-actions">
-                  <button
-                    className="secondary-button"
-                    onClick={() => setIncidenciaEditando(incidencia)}
-                    type="button"
-                  >
-                    Modificar incidencia
-                  </button>
+                {rol === "admin" && (
+                  <div className="card-actions">
+                    <button
+                      className="secondary-button"
+                      onClick={() => setIncidenciaEditando(incidencia)}
+                      type="button"
+                    >
+                      Modificar incidencia
+                    </button>
 
-                  <button
-                    className="danger-button"
-                    onClick={() => handleEliminarIncidencia(incidencia.id)}
-                    type="button"
-                  >
-                    Eliminar incidencia
-                  </button>
-                </div>
+                    <button
+                      className="danger-button"
+                      onClick={() => handleEliminarIncidencia(incidencia.id)}
+                      type="button"
+                    >
+                      Eliminar incidencia
+                    </button>
+                  </div>
+                )}
               </li>
             ))}
           </ul>

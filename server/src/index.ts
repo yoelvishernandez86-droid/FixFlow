@@ -31,7 +31,11 @@ type RequestConUsuario = Request & {
   usuario?: UsuarioToken;
 };
 
-function verificarToken(req: RequestConUsuario, res: Response, next: NextFunction) {
+function verificarToken(
+  req: RequestConUsuario,
+  res: Response,
+  next: NextFunction,
+) {
   const authHeader = req.headers.authorization;
 
   if (!authHeader) {
@@ -54,11 +58,7 @@ function verificarToken(req: RequestConUsuario, res: Response, next: NextFunctio
   }
 }
 
-function soloAdmin(
-  req: RequestConUsuario,
-  res: Response,
-  next: NextFunction,
-) {
+function soloAdmin(req: RequestConUsuario, res: Response, next: NextFunction) {
   if (!req.usuario) {
     return res.status(401).json({
       mensaje: "Debes iniciar sesión",
@@ -80,30 +80,54 @@ type Incidencia = {
   estado: string;
   asignado?: string;
   comentario?: string;
+  asignado_id?: string;
 };
 
 app.get("/", (req, res) => {
   res.send("Servidor de FixFlow funcionando");
 });
 
-app.get("/api/incidencias", verificarToken, async (req, res) => {
-  const resultado = await pool.query("SELECT * FROM incidencias");
+app.get(
+  "/api/incidencias",
+  verificarToken,
+  async (req: RequestConUsuario, res) => {
+    if (!req.usuario) {
+      return res.status(401).json({
+        mensaje: "Usuario no autenticado",
+      });
+    }
 
-  res.json(resultado.rows);
-});
+    if (req.usuario.rol === "admin") {
+      const resultado = await pool.query("SELECT * FROM incidencias");
 
-app.post("/api/incidencias", verificarToken, async (req, res) => {
+      return res.json(resultado.rows);
+    }
+
+    const resultado = await pool.query(
+      `SELECT *
+     FROM incidencias
+     WHERE asignado_id = $1`,
+      [req.usuario.id],
+    );
+
+    res.json(resultado.rows);
+  },
+);
+
+app.post("/api/incidencias", verificarToken, soloAdmin, async (req, res) => {
   const nuevaIncidencia: Incidencia = req.body;
 
   const resultado = await pool.query(
-    `INSERT INTO incidencias (id, titulo, estado, asignado, comentario)
-     VALUES ($1, $2, $3, $4, $5)
-     RETURNING *`,
+    `INSERT INTO incidencias
+   (id, titulo, estado, asignado, asignado_id, comentario)
+   VALUES ($1, $2, $3, $4, $5, $6)
+   RETURNING *`,
     [
       nuevaIncidencia.id,
       nuevaIncidencia.titulo,
       nuevaIncidencia.estado,
       nuevaIncidencia.asignado,
+      nuevaIncidencia.asignado_id || null,
       nuevaIncidencia.comentario,
     ],
   );
@@ -111,7 +135,7 @@ app.post("/api/incidencias", verificarToken, async (req, res) => {
   res.status(201).json(resultado.rows[0]);
 });
 
-app.put("/api/incidencias/:id", verificarToken, async (req, res) => {
+app.put("/api/incidencias/:id", verificarToken, soloAdmin, async (req, res) => {
   const { id } = req.params;
   const { titulo, estado, asignado, comentario } = req.body;
 
@@ -135,28 +159,33 @@ app.put("/api/incidencias/:id", verificarToken, async (req, res) => {
   res.json(resultado.rows[0]);
 });
 
-app.delete("/api/incidencias/:id", verificarToken, async (req, res) => {
-  const { id } = req.params;
+app.delete(
+  "/api/incidencias/:id",
+  verificarToken,
+  soloAdmin,
+  async (req, res) => {
+    const { id } = req.params;
 
-  const resultado = await pool.query(
-    `DELETE FROM incidencias
+    const resultado = await pool.query(
+      `DELETE FROM incidencias
      WHERE id = $1
      RETURNING *`,
-    [id],
-  );
+      [id],
+    );
 
-  if (resultado.rows.length === 0) {
-    return res.status(404).json({
-      mensaje: "Incidencia no encontrada",
+    if (resultado.rows.length === 0) {
+      return res.status(404).json({
+        mensaje: "Incidencia no encontrada",
+      });
+    }
+
+    res.json({
+      mensaje: "Incidencia eliminada",
     });
-  }
+  },
+);
 
-  res.json({
-    mensaje: "Incidencia eliminada",
-  });
-});
-
-app.post("/api/usuarios",verificarToken,soloAdmin, async (req, res) => {
+app.post("/api/usuarios", verificarToken, soloAdmin, async (req, res) => {
   try {
     const { nombre, email, password, rol } = req.body;
 
@@ -228,6 +257,25 @@ app.post("/api/login", async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ mensaje: "Error al iniciar sesiòn" });
+  }
+});
+
+app.get("/api/trabajadores", verificarToken, soloAdmin, async (req, res) => {
+  try {
+    const resultado = await pool.query(
+      `SELECT id, nombre, email
+         FROM usuarios
+         WHERE rol = 'trabajador'
+         ORDER BY nombre`,
+    );
+
+    res.json(resultado.rows);
+  } catch (error) {
+    console.error(error);
+
+    res.status(500).json({
+      mensaje: "Error al obtener los trabajadores",
+    });
   }
 });
 

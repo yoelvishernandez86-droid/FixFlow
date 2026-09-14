@@ -5,24 +5,33 @@ type FormularioDeIncidenciaProps = {
   onGuardar: (
     titulo: string,
     estado: EstadoIncidencia,
-    trabajador: string,
+    trabajadorId: string,
     comentario: string,
   ) => void;
+
+  trabajadores: Trabajador[];
   modo: "crear" | "editar";
   incidenciaInicial?: Incidencia;
+};
+
+type Trabajador = {
+  id: string;
+  nombre: string;
+  email: string;
 };
 
 function FormularioDeIncidencia({
   onGuardar,
   modo,
   incidenciaInicial,
+  trabajadores,
 }: FormularioDeIncidenciaProps) {
   const [titulo, setTitulo] = useState(incidenciaInicial?.titulo ?? "");
   const [estado, setEstado] = useState<EstadoIncidencia>(
     incidenciaInicial?.estado ?? "pendiente de asignacion",
   );
-  const [trabajador, setTrabajador] = useState(
-    incidenciaInicial?.asignado ?? "",
+  const [trabajadorId, setTrabajadorId] = useState(
+    incidenciaInicial?.asignado_id ?? "",
   );
   const [comentario, setComentario] = useState(
     incidenciaInicial?.comentario ?? "",
@@ -37,11 +46,11 @@ function FormularioDeIncidencia({
 
         if (titulo.trim() === "") return;
 
-        onGuardar(titulo.trim(), estado, trabajador.trim(), comentario.trim());
+        onGuardar(titulo.trim(), estado, trabajadorId, comentario.trim());
 
         setTitulo("");
         setEstado("pendiente de asignacion");
-        setTrabajador("");
+        setTrabajadorId("");
         setComentario("");
       }}
     >
@@ -81,13 +90,20 @@ function FormularioDeIncidencia({
 
       <div className="form-field">
         <label htmlFor="worker">Trabajador</label>
-        <input
+
+        <select
           id="worker"
-          type="text"
-          value={trabajador}
-          onChange={(e) => setTrabajador(e.target.value)}
-          placeholder="Responsable asignado"
-        />
+          value={trabajadorId}
+          onChange={(e) => setTrabajadorId(e.target.value)}
+        >
+          <option value="">Sin asignar</option>
+
+          {trabajadores.map((trabajador) => (
+            <option key={trabajador.id} value={trabajador.id}>
+              {trabajador.nombre}
+            </option>
+          ))}
+        </select>
       </div>
 
       <div className="form-field">

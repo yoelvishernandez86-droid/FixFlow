@@ -10,20 +10,23 @@ export interface Incidencia {
   estado: EstadoIncidencia;
   asignado?: string;
   comentario?: string;
+  asignado_id?: string;
 }
 
 export const crearIncidencia = (
   titulo: string,
   estado: EstadoIncidencia,
   asignado: string = "",
+  asignadoId: string = "",
   comentario: string = "",
 ): Incidencia => {
   return {
     id: crypto.randomUUID(),
-    titulo: titulo,
-    estado: estado,
-    asignado: asignado,
-    comentario: comentario,
+    titulo,
+    estado,
+    asignado,
+    asignado_id: asignadoId,
+    comentario,
   };
 };
 
