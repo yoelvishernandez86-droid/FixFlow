@@ -1,7 +1,7 @@
 import { useState } from "react";
 
 type LoginProps = {
-  onLogin: (token: string) => void;
+  onLogin: (token: string, rol: string) => void;
 };
 
 function Login({ onLogin }: LoginProps) {
@@ -31,8 +31,11 @@ function Login({ onLogin }: LoginProps) {
     const datos = await respuesta.json();
 
     localStorage.setItem("token", datos.token);
+    localStorage.setItem("nombre", datos.nombre);
+    localStorage.setItem("email", datos.email);
+    localStorage.setItem("rol", datos.rol);
 
-    onLogin(datos.token);
+    onLogin(datos.token, datos.rol);
   };
 
   return (
