@@ -4,7 +4,7 @@ import {
   type Incidencia,
   crearIncidencia,
 } from "./incidencia";
-
+import EditarIncidenciaTrabajador from "./EditarIncidenciaTrabajador";
 import FiltroEstado from "./filtrarPorEstado";
 import FormularioDeIncidencia from "./formularioDeIncidencia";
 import ModalEditarIncidencia from "./ModalEditarIncidencia";
@@ -195,7 +195,7 @@ function IncidenciasList({ onSesionExpirada, rol }: Props) {
     id: string,
     titulo: string,
     estado: EstadoIncidencia,
-    trabajador: string,
+    trabajadorId: string,
     comentario: string,
   ) => {
     try {
@@ -212,7 +212,7 @@ function IncidenciasList({ onSesionExpirada, rol }: Props) {
           body: JSON.stringify({
             titulo,
             estado,
-            asignado: trabajador,
+            asignado_id: trabajadorId || null,
             comentario,
           }),
         },
@@ -348,6 +348,21 @@ function IncidenciasList({ onSesionExpirada, rol }: Props) {
                     </button>
                   </div>
                 )}
+                {rol === "trabajador" && (
+                  <EditarIncidenciaTrabajador
+                    incidencia={incidencia}
+                    onSesionExpirada={onSesionExpirada}
+                    onActualizada={(incidenciaActualizada) => {
+                      setIncidencias((actuales) =>
+                        actuales.map((item) =>
+                          item.id === incidenciaActualizada.id
+                            ? incidenciaActualizada
+                            : item,
+                        ),
+                      );
+                    }}
+                  />
+                )}
               </li>
             ))}
           </ul>
@@ -368,6 +383,7 @@ function IncidenciasList({ onSesionExpirada, rol }: Props) {
           incidencia={incidenciaEditando}
           cerrarModal={() => setIncidenciaEditando(null)}
           onModificarIncidencia={handleModificarIncidencia}
+          trabajadores={trabajadores}
         />
       )}
     </div>

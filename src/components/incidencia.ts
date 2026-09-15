@@ -1,7 +1,7 @@
 export type EstadoIncidencia =
   | "pendiente de asignacion"
   | "asignada"
-  | "En proceso"
+  | "en proceso"
   | "resuelta";
 
 export interface Incidencia {

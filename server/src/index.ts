@@ -1,4 +1,6 @@
-import { pool } from "./db.js";
+import "dotenv/config";
+
+import pool from "./db.js";
 import express, { Request, Response, NextFunction } from "express";
 import cors from "cors";
 import bcrypt from "bcrypt";
@@ -137,17 +139,22 @@ app.post("/api/incidencias", verificarToken, soloAdmin, async (req, res) => {
 
 app.put("/api/incidencias/:id", verificarToken, soloAdmin, async (req, res) => {
   const { id } = req.params;
-  const { titulo, estado, asignado, comentario } = req.body;
+  const { titulo, estado, asignado_id, comentario } = req.body;
 
   const resultado = await pool.query(
     `UPDATE incidencias
-     SET titulo = $1,
-         estado = $2,
-         asignado = $3,
-         comentario = $4
-     WHERE id = $5
-     RETURNING *`,
-    [titulo, estado, asignado, comentario, id],
+   SET titulo = $1,
+       estado = $2,
+       asignado_id = $3,
+       asignado = (
+         SELECT nombre
+         FROM usuarios
+         WHERE id = $3
+       ),
+       comentario = $4
+   WHERE id = $5
+   RETURNING *`,
+    [titulo, estado, asignado_id || null, comentario, id],
   );
 
   if (resultado.rows.length === 0) {
@@ -278,6 +285,61 @@ app.get("/api/trabajadores", verificarToken, soloAdmin, async (req, res) => {
     });
   }
 });
+
+app.patch(
+  "/api/incidencias/:id/trabajador",
+  verificarToken,
+  async (req: RequestConUsuario, res) => {
+    try {
+      if (!req.usuario) {
+        return res.status(401).json({
+          mensaje: "Usuario no autenticado",
+        });
+      }
+
+      if (req.usuario.rol !== "trabajador") {
+        return res.status(403).json({
+          mensaje: "Esta acción es solo para trabajadores",
+        });
+      }
+
+      const { id } = req.params;
+      const { estado, comentario } = req.body;
+
+      const estadosPermitidos = ["asignada", "en proceso", "resuelta"];
+
+      if (!estadosPermitidos.includes(estado)) {
+        return res.status(400).json({
+          mensaje: "Estado no permitido",
+        });
+      }
+
+      const resultado = await pool.query(
+        `UPDATE incidencias
+         SET estado = $1,
+             comentario = $2
+         WHERE id = $3
+           AND asignado_id = $4
+         RETURNING *`,
+        [estado, comentario, id, req.usuario.id],
+      );
+
+      if (resultado.rows.length === 0) {
+        return res.status(403).json({
+          mensaje: "No puedes modificar esta incidencia",
+        });
+      }
+
+      res.json(resultado.rows[0]);
+    } catch (error) {
+      console.error(error);
+
+      res.status(500).json({
+        mensaje: "Error al actualizar la incidencia",
+      });
+    }
+  },
+);
 
 app.listen(PORT, () => {
   console.log(`Servidor funcionando en http://localhost:${PORT}`);

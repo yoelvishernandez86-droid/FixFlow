@@ -3,32 +3,40 @@ import FormularioDeIncidencia from "./formularioDeIncidencia";
 
 type PropsParaModal = {
   incidencia: Incidencia;
+  trabajadores: Trabajador[];
   cerrarModal: () => void;
   onModificarIncidencia: (
     id: string,
     titulo: string,
     estado: EstadoIncidencia,
-    trabajador: string,
+    trabajadorId: string,
     comentario: string,
   ) => void;
+};
+
+type Trabajador = {
+  id: string;
+  nombre: string;
+  email: string;
 };
 
 function ModalEditarIncidencia({
   incidencia,
   cerrarModal,
   onModificarIncidencia,
+  trabajadores,
 }: PropsParaModal) {
   const modificarIncidencia = (
     titulo: string,
     estado: EstadoIncidencia,
-    trabajador: string,
+    trabajadorId: string,
     comentario: string,
   ) => {
     onModificarIncidencia(
       incidencia.id,
       titulo,
       estado,
-      trabajador,
+      trabajadorId,
       comentario,
     );
 
@@ -56,15 +64,14 @@ function ModalEditarIncidencia({
             onClick={cerrarModal}
             type="button"
             aria-label="Cerrar modal"
-          >
-            ×
-          </button>
+          ></button>
         </div>
 
         <FormularioDeIncidencia
           onGuardar={modificarIncidencia}
           modo="editar"
           incidenciaInicial={incidencia}
+          trabajadores={trabajadores}
         />
       </div>
     </div>
