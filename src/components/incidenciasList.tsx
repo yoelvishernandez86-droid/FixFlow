@@ -36,7 +36,7 @@ function IncidenciasList({ onSesionExpirada, rol }: Props) {
       try {
         const token = localStorage.getItem("token");
 
-        const respuesta = await fetch("http://localhost:3000/api/incidencias", {
+        const respuesta = await fetch("https://fixflow-production-8cda.up.railway.app/api/incidencias", {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -80,7 +80,7 @@ function IncidenciasList({ onSesionExpirada, rol }: Props) {
         const token = localStorage.getItem("token");
 
         const respuesta = await fetch(
-          "http://localhost:3000/api/trabajadores",
+          "https://fixflow-production-8cda.up.railway.app/api/trabajadores",
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -130,7 +130,7 @@ function IncidenciasList({ onSesionExpirada, rol }: Props) {
 
       const token = localStorage.getItem("token");
 
-      const respuesta = await fetch("http://localhost:3000/api/incidencias", {
+      const respuesta = await fetch("https://fixflow-production-8cda.up.railway.app/api/incidencias", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -163,7 +163,7 @@ function IncidenciasList({ onSesionExpirada, rol }: Props) {
       const token = localStorage.getItem("token");
 
       const respuesta = await fetch(
-        `http://localhost:3000/api/incidencias/${id}`,
+        `https://fixflow-production-8cda.up.railway.app/api/incidencias/${id}`,
         {
           method: "DELETE",
           headers: {
@@ -202,7 +202,7 @@ function IncidenciasList({ onSesionExpirada, rol }: Props) {
       const token = localStorage.getItem("token");
 
       const respuesta = await fetch(
-        `http://localhost:3000/api/incidencias/${id}`,
+        `https://fixflow-production-8cda.up.railway.app/api/incidencias/${id}`,
         {
           method: "PUT",
           headers: {
