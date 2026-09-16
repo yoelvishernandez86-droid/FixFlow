@@ -1,219 +1,881 @@
+/* Paleta compartida: verdes, superficies cálidas y colores de estado. */
 :root {
-  color-scheme: light;
-  font-family: "Avenir Next", "Segoe UI", sans-serif;
-  --ink: #21322c;
-  --ink-soft: #526158;
-  --forest: #183c32;
-  --forest-deep: #102b24;
-  --sage: #73907b;
-  --gold: #b28a4a;
-  --gold-soft: #d8bd84;
-  --cream: #f6f0e4;
-  --paper: #fffdf7;
-  --surface: rgba(255, 253, 247, 0.88);
-  --line: rgba(24, 60, 50, 0.14);
-  --text: var(--ink);
-  --muted: var(--ink-soft);
-  --primary: var(--forest);
-  --primary-dark: var(--forest-deep);
-  --success: #2d735d;
-  --danger: #a64f42;
-  --shadow: 0 22px 52px rgba(25, 47, 37, 0.13);
-  --radius-xl: 30px;
-  --radius-lg: 18px;
-  --radius-md: 10px;
+  --ink: #213b33;
+  --muted: #5b6c64;
+  --forest: #204e40;
+  --forest-deep: #14392e;
+  --gold: #937039;
+  --gold-soft: #dfc891;
+  --cream: #f4f3ec;
+  --paper: #fffefb;
+  --line: #dce3d9;
+  --success: #246748;
+  --danger: #a73335;
+  --shadow: 0 12px 36px rgb(28 57 43 / 6%);
+  --radius-lg: 20px;
+  --radius-md: 12px;
 }
 
-* { box-sizing: border-box; }
-
+/* Fondo general discreto para separar las tarjetas del área de trabajo. */
 body {
-  margin: 0;
-  min-width: 320px;
+  color: var(--ink);
+  background: radial-gradient(ellipse at top left, #e4ebe0, transparent 55%), var(--cream);
+  line-height: 1.5;
+}
+
+/* Marco centrado común al acceso y al panel de gestión. */
+.app-shell {
+  width: min(100%, 1280px);
   min-height: 100vh;
-  color: var(--text);
-  background-color: var(--cream);
-  background-image:
-    linear-gradient(90deg, rgba(24, 60, 50, 0.025) 1px, transparent 1px),
-    linear-gradient(rgba(24, 60, 50, 0.025) 1px, transparent 1px),
-    radial-gradient(circle at 8% 4%, rgba(178, 138, 74, 0.2), transparent 20rem),
-    radial-gradient(circle at 94% 28%, rgba(24, 60, 50, 0.12), transparent 24rem);
-  background-size: 28px 28px, 28px 28px, auto, auto;
+  min-height: 100dvh;
+  margin-inline: auto;
+  padding: 28px clamp(14px, 3vw, 32px) 64px;
 }
 
-button, input, select, textarea { font: inherit; }
-#root, .app-shell { min-height: 100vh; }
-.app-shell { width: 100%; }
+/* Permite reducir columnas y elementos flexibles sin que el contenido fuerce su ancho. */
+.hero-copy,
+.hero-stats,
+.stat-card,
+.form-field,
+.filtro-estado,
+.filtro-texto,
+.incidencia-card-header > *,
+.modal-header > div {
+  min-width: 0;
+}
 
+/* Botones: tamaño cómodo, bordes suaves y transición de color. */
+button {
+  max-width: 100%;
+  min-height: 44px;
+  padding: 12px 18px;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  font-size: 0.875rem;
+  font-weight: 700;
+  line-height: 1.35;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  cursor: pointer;
+  transition: background-color 160ms ease, border-color 160ms ease, box-shadow 160ms ease;
+}
+
+/* Foco visible para recorrer con teclado todos los controles y enlaces. */
+:where(button, input, select, textarea, a):focus-visible {
+  outline: 3px solid var(--gold);
+  outline-offset: 3px;
+}
+
+/* Controles deshabilitados: apariencia atenuada sin modificar su comportamiento. */
+button:disabled,
+input:disabled,
+select:disabled,
+textarea:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Acción principal compartida por formularios de acceso, usuarios e incidencias. */
+.primary-button,
+.login-form button,
+.user-form button {
+  color: #fff;
+  background: var(--forest);
+  box-shadow: 0 4px 10px rgb(20 57 46 / 12%);
+}
+
+/* El botón principal del formulario de incidencias ocupa todo el ancho. */
+.primary-button {
+  width: 100%;
+}
+
+/* Acciones secundarias y salida de sesión en tonos suaves. */
+.secondary-button,
+.session-button {
+  border-color: #cbd8cb;
+  color: var(--forest-deep);
+  background: #eef3eb;
+}
+
+/* Eliminar usa rojo para distinguirse de las acciones de edición. */
+.danger-button {
+  border-color: #edcaca;
+  color: var(--danger);
+  background: #fff1ef;
+}
+
+/* Salida de sesión alineada al extremo derecho del marco. */
+.session-button {
+  display: block;
+  margin-left: auto;
+}
+
+/* Indicador del rol actual, colocado sobre el formulario de usuarios. */
+.session-role {
+  display: table;
+  margin: 20px 0 12px;
+  padding: 6px 12px;
+  border: 1px solid #cbd8cb;
+  border-radius: 100px;
+  color: var(--forest);
+  background: #e8efe3;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+/* Superficies compartidas de formularios, listado y ventana de edición. */
+.login-form,
+.user-form,
+.incidencia-form,
+.incidencias-panel,
+.modal-card {
+  min-width: 0;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background: var(--paper);
+  box-shadow: var(--shadow);
+}
+
+/* Pantalla de acceso centrada con espacio suficiente entre sus campos. */
+.login-form {
+  display: grid;
+  gap: 20px;
+  width: min(100%, 450px);
+  margin: clamp(24px, 12vh, 140px) auto 24px;
+  margin-top: clamp(24px, 12svh, 140px);
+  padding: clamp(22px, 4vw, 42px);
+  border-top: 4px solid var(--forest);
+  box-shadow: 0 24px 70px rgb(28 57 43 / 12%);
+}
+
+/* Títulos de sección: una misma familia y jerarquía en todas las pantallas. */
+.login-form h1,
+.user-form h2,
+.hero-copy h1,
+.form-heading h2,
+.panel-header h2,
+.modal-header h2,
+.empty-state h3,
+.incidencia-card h3 {
+  margin: 0;
+  font-weight: 650;
+  letter-spacing: -0.035em;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+}
+
+/* El título del acceso tiene mayor presencia que los títulos interiores. */
+.login-form h1 {
+  margin-bottom: 8px;
+  font-size: clamp(1.8rem, 4vw, 2.3rem);
+}
+
+/* Alta de usuarios en una franja compacta sobre el panel principal. */
+.user-form {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr)) auto;
+  align-items: center;
+  gap: 16px;
+  padding: 24px;
+}
+
+/* Título y mensajes del alta abarcan todas las columnas de la franja. */
+.user-form h2,
+.user-form > p {
+  grid-column: 1 / -1;
+  margin: 0;
+}
+
+/* Encabezado del formulario administrativo. */
+.user-form h2 {
+  font-size: 1.2rem;
+}
+
+/* Campos de texto y selección uniformes, incluidos los formularios sin envoltorio. */
+:where(.login-form, .user-form, .form-field) :is(input, select, textarea),
+.filtro-estado-select,
+.filtro-texto-input {
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  min-height: 46px;
+  padding: 12px 14px;
+  border: 1px solid #c8d3c8;
+  border-radius: 9px;
+  color: var(--ink);
+  background-color: #fff;
+  font-size: 1rem;
+  line-height: 1.4;
+  transition: border-color 160ms ease, box-shadow 160ms ease;
+}
+
+/* Indicaciones dentro de campos vacíos, con contraste sobre el blanco. */
+input::placeholder,
+textarea::placeholder {
+  color: #69776e;
+  opacity: 1;
+}
+
+/* Selecciones reservan espacio para la flecha nativa incluso con etiquetas largas. */
+:where(.user-form, .form-field) select,
+.filtro-estado-select {
+  padding-right: 30px;
+  cursor: pointer;
+}
+
+/* Comentarios con altura inicial cómoda y redimensionamiento vertical. */
+.form-field textarea {
+  min-height: 120px;
+  resize: vertical;
+}
+
+/* Refuerzo visual del campo activo, complementario al contorno de teclado. */
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: var(--forest);
+  box-shadow: 0 0 0 3px rgb(32 78 64 / 10%);
+}
+
+/* Mensaje de credenciales incorrectas mostrado por el formulario existente. */
+.login-form > p {
+  margin: 0;
+  padding: 12px 14px;
+  border: 1px solid #edcaca;
+  border-radius: 9px;
+  color: var(--danger);
+  background: #fff1ef;
+  font-size: 0.875rem;
+  overflow-wrap: anywhere;
+}
+
+/* Respuesta del alta en un recuadro neutro, válido tanto para éxito como para error. */
+.user-form > p {
+  padding: 12px 14px;
+  border-left: 3px solid var(--gold);
+  border-radius: 6px;
+  background: #f6f1e5;
+  overflow-wrap: anywhere;
+}
+
+/* Separación del panel de incidencias respecto a las acciones de sesión. */
 .dashboard {
-  max-width: 1240px;
-  margin: 0 auto;
-  padding: 46px 20px 64px;
+  margin-top: 28px;
 }
 
+/* Cabecera principal con presentación y métricas en dos columnas. */
 .hero-panel {
   position: relative;
+  isolation: isolate;
   display: grid;
-  grid-template-columns: minmax(0, 1.45fr) minmax(280px, 0.72fr);
-  gap: 32px;
+  grid-template-columns: minmax(0, 1.5fr) minmax(240px, 0.75fr);
+  align-items: center;
+  gap: clamp(24px, 3vw, 40px);
   overflow: hidden;
-  margin-bottom: 30px;
-  padding: 42px;
-  border: 1px solid rgba(216, 189, 132, 0.48);
-  border-radius: var(--radius-xl);
-  color: #f9f4e9;
-  background: linear-gradient(115deg, rgba(16, 43, 36, 0.98), rgba(24, 60, 50, 0.93));
-  box-shadow: 0 28px 64px rgba(16, 43, 36, 0.24);
+  margin-bottom: 28px;
+  padding: clamp(24px, 4vw, 42px);
+  border: 1px solid var(--forest);
+  border-radius: 24px;
+  color: #fffef8;
+  background: linear-gradient(120deg, var(--forest-deep), #2f6250);
+  box-shadow: 0 16px 40px rgb(20 57 46 / 14%);
 }
 
-.hero-panel::before, .hero-panel::after { position: absolute; content: ""; pointer-events: none; }
-.hero-panel::before {
-  top: -110px;
-  right: 9%;
-  width: 300px;
-  height: 300px;
-  border: 1px solid rgba(216, 189, 132, 0.34);
-  border-radius: 50%;
-  box-shadow: 0 0 0 32px rgba(216, 189, 132, 0.06), 0 0 0 64px rgba(216, 189, 132, 0.04);
-}
+/* Aros decorativos de la cabecera; no interceptan clics. */
 .hero-panel::after {
-  right: -60px;
-  bottom: -92px;
-  width: 340px;
-  height: 170px;
-  border: 1px solid rgba(216, 189, 132, 0.24);
-  border-radius: 50% 50% 0 0;
+  position: absolute;
+  z-index: -1;
+  top: -140px;
+  right: -90px;
+  width: 450px;
+  height: 450px;
+  border: 1px solid rgb(223 200 145 / 25%);
+  border-radius: 50%;
+  box-shadow: 0 0 0 45px rgb(223 200 145 / 5%), 0 0 0 90px rgb(223 200 145 / 4%);
+  content: "";
+  pointer-events: none;
 }
-.hero-copy, .hero-stats { position: relative; z-index: 1; }
 
-.hero-copy h1, .panel-header h2, .modal-header h2, .form-heading h2, .empty-state h3, .incidencia-card h3 {
-  margin: 0;
-  font-family: Georgia, "Times New Roman", serif;
-  font-weight: 500;
+/* Marca y subtítulos pequeños que introducen cada sección. */
+.eyebrow,
+.form-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+  color: var(--gold);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
 }
-.hero-copy p, .empty-state p { color: var(--muted); }
+
+/* Trazo decorativo al inicio de los subtítulos. */
+.eyebrow::before,
+.form-kicker::before {
+  width: 20px;
+  height: 2px;
+  background: currentColor;
+  content: "";
+}
+
+/* La marca sobre el fondo oscuro usa un dorado más claro. */
+.hero-copy .eyebrow {
+  color: var(--gold-soft);
+}
+
+/* Título principal adaptable al ancho de la pantalla. */
+.hero-copy h1 {
+  max-width: 650px;
+  font-size: clamp(2rem, 4vw, 3.6rem);
+  line-height: 1.08;
+}
+
+/* Texto de apoyo de la cabecera con ancho de lectura limitado. */
 .hero-copy p {
-  max-width: 580px;
-  margin: 18px 0 0;
-  color: rgba(249, 244, 233, 0.75);
-  font-size: 1.02rem;
+  max-width: 540px;
+  margin: 20px 0 0;
+  color: #d5e3d7;
+  line-height: 1.75;
+}
+
+/* Contadores agrupados con separación constante. */
+.hero-stats {
+  display: grid;
+  gap: 14px;
+}
+
+/* Tarjeta de cada métrica sobre una superficie translúcida. */
+.stat-card {
+  padding: 16px 22px;
+  border: 1px solid rgb(255 255 255 / 18%);
+  border-radius: 12px;
+  background: rgb(255 255 255 / 7%);
+}
+
+/* Etiquetas de los contadores. */
+.stat-card span {
+  display: block;
+  color: #d5e3d7;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+/* Valores numéricos alineados con cifras de ancho estable. */
+.stat-card strong {
+  display: block;
+  margin-top: 4px;
+  font-size: 2.4rem;
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+}
+
+/* Distribución del formulario de creación y la lista de incidencias. */
+.content-grid {
+  display: grid;
+  grid-template-columns: minmax(290px, 360px) minmax(0, 1fr);
+  align-items: start;
+  gap: 24px;
+}
+
+/* Cuando solo existe el listado, ocupa todo el espacio disponible. */
+.content-grid > .incidencias-panel:only-child {
+  grid-column: 1 / -1;
+}
+
+/* Relleno común a los paneles principales. */
+.incidencia-form,
+.incidencias-panel {
+  padding: clamp(18px, 2.4vw, 28px);
+}
+
+/* Acento superior para identificar el formulario de incidencias. */
+.incidencia-form {
+  border-top: 3px solid var(--gold-soft);
+}
+
+/* Separación de los títulos respecto a los campos. */
+.form-heading {
+  margin-bottom: 24px;
+}
+
+/* Tamaño de los títulos interiores. */
+.form-heading h2,
+.panel-header h2,
+.modal-header h2 {
+  font-size: clamp(1.4rem, 2vw, 1.8rem);
+}
+
+/* Cada campo mantiene un espacio claro entre etiqueta y control. */
+.form-field {
+  display: grid;
+  gap: 8px;
+  margin-bottom: 18px;
+}
+
+/* Etiquetas legibles para formularios y filtros. */
+.form-field label,
+.filtro-estado-label,
+.filtro-texto-label {
+  color: var(--forest-deep);
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+/* División entre el título del listado y sus filtros. */
+.panel-header {
+  margin-bottom: 22px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--line);
+}
+
+/* Filtros agrupados visualmente en superficies suaves. */
+.filtro-estado,
+.filtro-texto {
+  display: grid;
+  gap: 8px;
+  margin-bottom: 14px;
+  padding: 14px;
+  border: 1px solid #e2e7df;
+  border-radius: var(--radius-md);
+  background: #f4f6f0;
+}
+
+/* Lista sin viñetas y con separación uniforme entre tarjetas. */
+.incidencias-list {
+  display: grid;
+  gap: 16px;
+  margin: 22px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* Tarjeta individual con borde lateral que facilita el recorrido visual. */
+.incidencia-card {
+  min-width: 0;
+  padding: 22px;
+  border: 1px solid var(--line);
+  border-left: 3px solid #aabc9e;
+  border-radius: var(--radius-md);
+  background: #fff;
+  box-shadow: 0 4px 12px rgb(28 57 43 / 3%);
+}
+
+/* Título y estado pueden pasar a otra línea sin desbordar la tarjeta. */
+.incidencia-card-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+/* Título de incidencia con espacio flexible para textos largos. */
+.incidencia-card h3 {
+  flex: 1 1 160px;
+  font-size: 1.15rem;
+  line-height: 1.4;
+}
+
+/* Insignia base: texto siempre presente para no depender solo del color. */
+.status-badge {
+  display: inline-flex;
+  max-width: 100%;
+  padding: 6px 10px;
+  border: 1px solid #d6dfd5;
+  border-radius: 100px;
+  color: var(--muted);
+  background: #f0f3ed;
+  font-size: 0.7rem;
+  font-weight: 750;
+  overflow-wrap: anywhere;
+}
+
+/* Incidencias pendientes: ámbar suave. */
+.status-badge[data-status="pendiente de asignacion"] {
+  border-color: #ead5a2;
+  color: #795610;
+  background: #fff5da;
+}
+
+/* Incidencias asignadas: azul suave. */
+.status-badge[data-status="asignada"] {
+  border-color: #c7dcef;
+  color: #285b87;
+  background: #edf5fc;
+}
+
+/* Incidencias en proceso: violeta suave. */
+.status-badge[data-status="en proceso"] {
+  border-color: #dcd1ed;
+  color: #694191;
+  background: #f4effb;
+}
+
+/* Incidencias resueltas: verde suave. */
+.status-badge[data-status="resuelta"] {
+  border-color: #c6dfce;
+  color: var(--success);
+  background: #edf7ef;
+}
+
+/* Datos de asignación y comentarios ordenados en vertical. */
+.incidencia-meta {
+  display: grid;
+  gap: 10px;
+  margin: 0 0 18px;
+}
+
+/* Fondo de cada dato para separar contenido y acciones. */
+.incidencia-meta div {
+  min-width: 0;
+  padding: 12px 14px;
+  border-radius: 8px;
+  background: #f5f6f1;
+}
+
+/* Nombre de cada dato de la incidencia. */
+.incidencia-meta dt {
+  margin-bottom: 5px;
+  color: var(--muted);
+  font-size: 0.7rem;
+  font-weight: 750;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+/* Valores con ajuste de palabras largas y conservación de saltos de línea. */
+.incidencia-meta dd {
+  margin: 0;
+  font-size: 0.925rem;
+  line-height: 1.65;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+/* Acciones administrativas distribuidas sin desbordar en tamaños pequeños. */
+.card-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+/* Edición del trabajador separada de la información de la incidencia. */
+.worker-edit {
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid var(--line);
+}
+
+/* Estado vacío del listado con un contorno y texto centrado. */
+.empty-state {
+  margin-top: 18px;
+  padding: 36px 24px;
+  border: 1px dashed #b9c8b8;
+  border-radius: var(--radius-md);
+  background: #f6f8f2;
+  text-align: center;
+}
+
+/* Título del mensaje de listado vacío. */
+.empty-state h3 {
+  font-size: 1.25rem;
+}
+
+/* Explicación del estado vacío. */
+.empty-state p {
+  margin: 12px 0 0;
+  color: var(--muted);
   line-height: 1.7;
 }
 
-.eyebrow, .form-kicker {
-  display: inline-flex;
-  align-items: center;
-  gap: 9px;
-  margin-bottom: 12px;
-  color: var(--gold);
-  font-size: 0.7rem;
-  font-weight: 800;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
+/* Fondo del modal: cubre la ventana y permite desplazamiento en pantallas bajas. */
+.modal-overlay {
+  position: fixed;
+  z-index: 100;
+  inset: 0;
+  display: flex;
+  overflow-y: auto;
+  padding: 24px;
+  overscroll-behavior-y: contain;
+  background: rgb(13 34 27 / 65%);
+  backdrop-filter: blur(5px);
 }
-.eyebrow::before, .form-kicker::before { width: 22px; height: 1px; background: currentColor; content: ""; }
-.hero-copy h1 { max-width: 680px; font-size: clamp(2.45rem, 4.6vw, 4.7rem); line-height: 0.98; letter-spacing: -0.045em; }
-.hero-stats { display: grid; align-content: center; gap: 12px; }
 
-.stat-card, .incidencia-form, .incidencias-panel, .incidencia-card, .modal-card {
-  border: 1px solid var(--line);
-  border-radius: var(--radius-lg);
-  background: var(--surface);
-  box-shadow: var(--shadow);
+/* Ventana de edición centrada; su contenido largo sigue siendo accesible. */
+.modal-card {
+  flex: 0 0 auto;
+  width: min(100%, 620px);
+  margin: auto;
+  padding: 30px;
+  border-top: 3px solid var(--gold-soft);
+  box-shadow: 0 24px 80px rgb(0 0 0 / 24%);
 }
-.stat-card {
-  padding: 18px 20px;
-  border-color: rgba(216, 189, 132, 0.34);
-  border-left: 3px solid var(--gold);
-  border-radius: 8px;
-  background: rgba(255, 253, 247, 0.08);
+
+/* El formulario interior no repite el marco de la ventana. */
+.modal-card .incidencia-form {
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
   box-shadow: none;
-  backdrop-filter: blur(8px);
-}
-.stat-card span { display: block; margin-bottom: 6px; color: rgba(249, 244, 233, 0.64); font-size: 0.74rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; }
-.stat-card strong { color: #fffaf0; font-family: Georgia, "Times New Roman", serif; font-size: 2.35rem; font-weight: 500; }
-
-.content-grid { display: grid; grid-template-columns: minmax(310px, 370px) minmax(0, 1fr); gap: 24px; align-items: start; }
-.incidencia-form, .incidencias-panel { padding: 28px; background: linear-gradient(145deg, rgba(255, 253, 247, 0.94), rgba(248, 243, 232, 0.82)); }
-.incidencia-form { position: sticky; top: 24px; border-top: 3px solid var(--gold); }
-.form-heading { margin-bottom: 24px; }
-.form-heading h2, .panel-header h2, .modal-header h2 { font-size: clamp(1.65rem, 2vw, 2.15rem); letter-spacing: -0.03em; }
-
-.form-field { display: grid; gap: 8px; margin-bottom: 17px; }
-.form-field label { color: var(--forest); font-size: 0.78rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; }
-.form-field input, .form-field select, .form-field textarea {
-  width: 100%;
-  padding: 13px 14px;
-  border: 1px solid rgba(24, 60, 50, 0.18);
-  border-radius: 7px;
-  background: rgba(255, 255, 255, 0.7);
-  color: var(--text);
-  transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
-}
-.form-field textarea { min-height: 112px; resize: vertical; }
-.form-field input::placeholder, .form-field textarea::placeholder { color: rgba(82, 97, 88, 0.64); }
-.form-field input:focus, .form-field select:focus, .form-field textarea:focus { outline: none; border-color: var(--gold); background: #fffefb; box-shadow: 0 0 0 4px rgba(178, 138, 74, 0.14); }
-
-.primary-button, .secondary-button, .danger-button, .icon-button { border: 0; cursor: pointer; transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease; }
-.primary-button, .secondary-button, .danger-button { padding: 13px 18px; border-radius: 7px; font-size: 0.83rem; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; }
-.primary-button { width: 100%; color: #fffaf0; background: linear-gradient(135deg, var(--forest), var(--forest-deep)); box-shadow: 0 12px 24px rgba(16, 43, 36, 0.2); }
-.secondary-button { color: var(--forest); background: #e8eee6; }
-.danger-button { color: #fff8f5; background: linear-gradient(135deg, #b45c4d, var(--danger)); }
-.primary-button:hover, .secondary-button:hover, .danger-button:hover, .icon-button:hover { transform: translateY(-2px); }
-.primary-button:hover { box-shadow: 0 16px 28px rgba(16, 43, 36, 0.28); }
-
-.panel-header { padding-bottom: 20px; border-bottom: 1px solid rgba(24, 60, 50, 0.12); margin-bottom: 20px; }
-.filtro-estado, .filtro-texto { display: grid; gap: 9px; margin-bottom: 14px; padding: 14px 16px; border: 1px solid rgba(24, 60, 50, 0.1); border-radius: 8px; background: rgba(232, 238, 230, 0.48); }
-.filtro-estado-label, .filtro-texto-label { color: var(--forest); font-size: 0.72rem; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; }
-.filtro-estado-select, .filtro-texto-input {
-  width: 100%;
-  padding: 12px 40px 12px 14px;
-  border: 1px solid rgba(24, 60, 50, 0.16);
-  border-radius: 6px;
-  background-color: rgba(255, 255, 255, 0.82);
-  color: var(--text);
-  font-size: 0.94rem;
-  font-weight: 650;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8);
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
-}
-.filtro-estado-select { appearance: none; -webkit-appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16' fill='none'%3E%3Cpath d='M4 6L8 10L12 6' stroke='%23183c32' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; }
-.filtro-texto-input { padding-right: 14px; }
-.filtro-texto-input::placeholder { color: rgba(82, 97, 88, 0.62); font-weight: 500; }
-.filtro-estado-select:focus, .filtro-texto-input:focus { outline: none; border-color: var(--gold); box-shadow: 0 0 0 4px rgba(178, 138, 74, 0.13); }
-
-.incidencias-list { display: grid; gap: 14px; margin: 0; padding: 0; list-style: none; }
-.incidencia-card { position: relative; overflow: hidden; padding: 22px; border-radius: 10px; background: rgba(255, 254, 250, 0.88); box-shadow: 0 9px 20px rgba(25, 47, 37, 0.07); }
-.incidencia-card::before { position: absolute; top: 0; bottom: 0; left: 0; width: 4px; background: var(--gold); content: ""; }
-.incidencia-card-header { display: flex; gap: 14px; align-items: center; justify-content: space-between; margin-bottom: 18px; }
-.incidencia-card h3 { font-size: 1.35rem; line-height: 1.15; }
-.status-badge { display: inline-flex; align-items: center; flex-shrink: 0; padding: 7px 10px; border: 1px solid rgba(45, 115, 93, 0.18); border-radius: 4px; background: #e8f0e9; color: var(--success); font-size: 0.7rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; }
-.incidencia-meta { display: grid; gap: 10px; margin: 0 0 18px; }
-.incidencia-meta div { padding: 12px 14px; border-left: 2px solid rgba(178, 138, 74, 0.62); background: #f7f3e9; }
-.incidencia-meta dt { margin-bottom: 5px; color: var(--muted); font-size: 0.68rem; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; }
-.incidencia-meta dd { margin: 0; line-height: 1.45; }
-.card-actions { display: flex; flex-wrap: wrap; gap: 10px; }
-
-.empty-state { margin-top: 18px; padding: 36px 28px; border: 1px dashed rgba(24, 60, 50, 0.25); border-radius: var(--radius-md); background: rgba(232, 238, 230, 0.36); text-align: center; }
-.empty-state h3 { font-size: 1.55rem; }
-
-.modal-overlay { position: fixed; z-index: 10; inset: 0; display: grid; place-items: center; padding: 20px; background: rgba(11, 31, 25, 0.66); backdrop-filter: blur(8px); }
-.modal-card { width: min(100%, 620px); padding: 28px; border-top: 3px solid var(--gold); background: var(--paper); }
-.modal-card .incidencia-form { padding: 0; border: 0; background: transparent; box-shadow: none; }
-.modal-header { display: flex; align-items: start; justify-content: space-between; gap: 16px; margin-bottom: 22px; }
-.icon-button { display: inline-grid; place-items: center; width: 38px; height: 38px; border: 1px solid rgba(24, 60, 50, 0.14); border-radius: 50%; background: #eff3eb; color: var(--forest); font-size: 1.45rem; }
-
-@media (max-width: 920px) {
-  .hero-panel, .content-grid { grid-template-columns: 1fr; }
-  .hero-panel { padding: 34px; }
-  .hero-stats { grid-template-columns: repeat(2, 1fr); }
-  .incidencia-form { position: static; }
 }
 
-@media (max-width: 640px) {
-  .dashboard { padding: 20px 14px 40px; }
-  .hero-panel, .incidencia-form, .incidencias-panel, .modal-card { padding: 22px; }
-  .hero-copy h1 { font-size: 2.45rem; }
-  .hero-stats { grid-template-columns: 1fr; }
-  .incidencia-card-header, .modal-header, .card-actions { flex-direction: column; align-items: stretch; }
-  .status-badge { align-self: flex-start; }
+/* Cabecera del modal y botón de cierre alineados en los extremos. */
+.modal-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 24px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--line);
+}
+
+/* Botón de cierre con superficie y tamaño táctil claramente visibles. */
+.icon-button {
+  position: relative;
+  flex: 0 0 44px;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border-color: var(--line);
+  border-radius: 50%;
+  color: var(--forest);
+  background: #f0f4ec;
+}
+
+/* Dos trazos dibujan el cierre del botón que ya tiene nombre accesible. */
+.icon-button::before,
+.icon-button::after {
+  position: absolute;
+  top: 20px;
+  left: 13px;
+  width: 16px;
+  height: 2px;
+  border-radius: 2px;
+  background: currentColor;
+  content: "";
+  transform: rotate(45deg);
+}
+
+/* El segundo trazo completa la cruz de cierre. */
+.icon-button::after {
+  transform: rotate(-45deg);
+}
+
+/* Respuesta al puntero solo en dispositivos que admiten hover real. */
+@media (hover: hover) {
+  /* Oscurece las acciones principales disponibles. */
+  :is(.primary-button, .login-form button, .user-form button):hover:not(:disabled) {
+    background: var(--forest-deep);
+    box-shadow: 0 6px 16px rgb(20 57 46 / 18%);
+  }
+
+  /* Refuerza la superficie de acciones secundarias y cierre. */
+  :is(.secondary-button, .session-button, .icon-button):hover:not(:disabled) {
+    border-color: #aabc9e;
+    background: #e2ebdc;
+  }
+
+  /* Refuerza el color de la acción de eliminar. */
+  .danger-button:hover:not(:disabled) {
+    border-color: #db9c9d;
+    background: #ffe3df;
+  }
+}
+
+/* Tabletas y portátiles estrechos: se evita comprimir el listado junto al formulario. */
+@media (max-width: 1080px) {
+  /* El formulario de incidencias y el listado aprovechan cada uno el ancho disponible. */
+  .content-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  /* Campos administrativos con más espacio horizontal. */
+  .user-form {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  /* El envío del alta abarca ambas columnas. */
+  .user-form button {
+    grid-column: 1 / -1;
+  }
+}
+
+/* Tabletas: formulario de creación compacto con campos distribuidos en dos columnas. */
+@media (min-width: 601px) and (max-width: 1080px) {
+  /* Solo afecta al formulario principal, sin alterar el formulario del modal. */
+  .content-grid > .incidencia-form {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: 20px;
+  }
+
+  /* Cabecera, título de incidencia, comentario y envío abarcan ambas columnas. */
+  .content-grid > .incidencia-form > :is(.form-heading, .form-field:nth-child(2), .form-field:has(textarea), .primary-button) {
+    grid-column: 1 / -1;
+  }
+}
+
+/* Tabletas estrechas: la cabecera pasa a una columna. */
+@media (max-width: 900px) {
+  /* Presentación y métricas apiladas. */
+  .hero-panel {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  /* Métricas en paralelo debajo de la presentación. */
+  .hero-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* Móviles: márgenes reducidos y formularios en una única columna. */
+@media (max-width: 600px) {
+  /* Marco exterior adaptado a pantallas pequeñas. */
+  .app-shell {
+    padding: 18px 14px max(36px, env(safe-area-inset-bottom));
+  }
+
+  /* Menor separación antes de la cabecera. */
+  .dashboard {
+    margin-top: 20px;
+  }
+
+  /* Tarjetas principales con relleno compacto. */
+  .hero-panel,
+  .login-form,
+  .user-form,
+  .incidencia-form,
+  .incidencias-panel,
+  .modal-card {
+    padding: 22px;
+    border-radius: 16px;
+  }
+
+  /* Cabecera compacta manteniendo espacio entre texto y métricas. */
+  .hero-panel {
+    gap: 24px;
+  }
+
+  /* Formulario de acceso próximo al inicio de la pantalla. */
+  .login-form {
+    margin-top: 36px;
+  }
+
+  /* Alta de usuarios apilada. */
+  .user-form {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  /* Contadores con relleno reducido. */
+  .stat-card {
+    padding: 14px;
+  }
+
+  /* Tarjetas de incidencias ajustadas al ancho disponible. */
+  .incidencia-card {
+    padding: 16px;
+  }
+
+  /* Título en su propia línea antes de la insignia. */
+  .incidencia-card h3 {
+    flex-basis: 100%;
+  }
+
+  /* Botones administrativos de ancho completo en móvil. */
+  .card-actions > button {
+    width: 100%;
+  }
+
+  /* El modal aprovecha el espacio sin tocar los bordes de la ventana. */
+  .modal-overlay {
+    padding: max(12px, env(safe-area-inset-top)) max(12px, env(safe-area-inset-right)) max(12px, env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-left));
+  }
+
+  /* Controles táctiles con más altura sin reducir la fuente de los campos. */
+  button,
+  :where(.login-form, .user-form, .form-field) :is(input, select),
+  .filtro-estado-select,
+  .filtro-texto-input {
+    min-height: 48px;
+  }
+
+  /* Conserva el cierre circular y centra sus dos trazos al aumentar su tamaño. */
+  .icon-button {
+    flex-basis: 48px;
+    width: 48px;
+    height: 48px;
+  }
+
+  /* Posición del icono de cierre dentro del botón táctil. */
+  .icon-button::before,
+  .icon-button::after {
+    top: 22px;
+    left: 15px;
+  }
+}
+
+/* Móviles estrechos: recupera espacio útil dentro de paneles anidados. */
+@media (max-width: 380px) {
+  /* Reduce márgenes exteriores sin recortar contenido ni ocultar desbordamientos. */
+  .app-shell {
+    padding-inline: 10px;
+  }
+
+  /* Paneles y modal con relleno proporcionado a pantallas de 320 a 380 px. */
+  .hero-panel,
+  .login-form,
+  .user-form,
+  .incidencia-form,
+  .incidencias-panel,
+  .modal-card {
+    padding: 16px;
+  }
+
+  /* Los filtros dejan más ancho disponible para los textos de los controles. */
+  .filtro-estado,
+  .filtro-texto {
+    padding: 10px;
+  }
+
+  /* Tarjetas interiores menos profundas para facilitar la edición del trabajador. */
+  .incidencia-card {
+    padding: 12px;
+  }
+
+  /* Estado vacío legible sin un exceso de márgenes laterales. */
+  .empty-state {
+    padding: 24px 14px;
+  }
+}
+
+/* Ventanas bajas y móviles en horizontal: acceso y edición comienzan cerca del borde superior. */
+@media (max-height: 600px) {
+  /* Evita dejar una franja vacía grande antes del inicio de sesión. */
+  .login-form {
+    margin-top: 12px;
+  }
+
+  /* El modal largo se recorre desde su cabecera hasta el botón de guardar. */
+  .modal-card {
+    margin-block: 0 auto;
+  }
+}
+
+/* Respeta la preferencia del sistema de reducir los efectos de movimiento. */
+@media (prefers-reduced-motion: reduce) {
+  /* Elimina las transiciones decorativas de los controles. */
+  button,
+  input,
+  select,
+  textarea {
+    transition: none;
+  }
 }

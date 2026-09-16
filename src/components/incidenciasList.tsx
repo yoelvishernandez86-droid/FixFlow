@@ -314,7 +314,7 @@ function IncidenciasList({ onSesionExpirada, rol }: Props) {
               <li className="incidencia-card" key={incidencia.id}>
                 <div className="incidencia-card-header">
                   <h3>{incidencia.titulo}</h3>
-                  <span className="status-badge">{incidencia.estado}</span>
+                  <span className="status-badge" data-status={incidencia.estado}>{incidencia.estado}</span>
                 </div>
 
                 <dl className="incidencia-meta">

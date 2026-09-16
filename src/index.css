@@ -1,15 +1,44 @@
-html {
-  scroll-behavior: smooth;
-}
-
-body {
+/* Base del documento: tipografía del sistema y representación nítida del texto. */
+:root {
+  font-family: "Avenir Next", "Segoe UI", sans-serif;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  color-scheme: light;
 }
 
+/* Modelo de caja uniforme, incluidos los elementos decorativos. */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+/* Usa la altura visible del móvil, con respaldo para navegadores sin unidades dinámicas. */
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+/* Los controles heredan la fuente de la aplicación. */
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+/* Los enlaces conservan una señal visual reconocible. */
 a {
   color: inherit;
-  text-decoration: none;
+  text-underline-offset: 0.2em;
+}
+
+/* El contenedor de React ocupa, como mínimo, la altura de la ventana. */
+#root {
+  min-height: 100vh;
+  min-height: 100dvh;
 }

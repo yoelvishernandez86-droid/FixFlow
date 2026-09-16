@@ -39,7 +39,7 @@ function Login({ onLogin }: LoginProps) {
   };
 
   return (
-    <form onSubmit={iniciarSesion}>
+    <form className="login-form" onSubmit={iniciarSesion}>
       <h1>Iniciar sesión</h1>
 
       <input

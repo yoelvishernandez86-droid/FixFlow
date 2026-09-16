@@ -33,10 +33,10 @@ function App() {
 
   return (
     <main className="app-shell">
-      <button type="button" onClick={cerrarSesion}>
+      <button className="session-button" type="button" onClick={cerrarSesion}>
         Cerrar sesión
       </button>
-      {rol === "admin" && <p>Usuario administrador</p>}
+      {rol === "admin" && <p className="session-role">Usuario administrador</p>}
       {rol === "admin" && <CrearUsuarios />}
       <IncidenciasList onSesionExpirada={cerrarSesion} rol={rol} />
     </main>

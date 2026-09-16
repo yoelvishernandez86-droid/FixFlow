@@ -42,7 +42,7 @@ function CrearUsuarios() {
   };
 
   return (
-    <form onSubmit={crearUsuarios}>
+    <form className="user-form" onSubmit={crearUsuarios}>
       <h2>Crear usuario</h2>
 
       <input
