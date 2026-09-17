@@ -1,75 +1,59 @@
-# React + TypeScript + Vite
+# FixFlow
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+FixFlow es una aplicación web para gestionar incidencias de forma sencilla y organizada. Permite registrar, asignar, editar, filtrar y realizar el seguimiento de cada incidencia desde una sola interfaz.
 
-Currently, two official plugins are available:
+## Aplicación publicada
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+https://esfixflow.com
 
-## React Compiler
+## Funcionalidades
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+* Inicio de sesión de usuarios.
+* Gestión de sesiones mediante autenticación.
+* Creación, edición y eliminación de incidencias.
+* Asignación de incidencias a trabajadores.
+* Filtrado por título y estado.
+* Gestión de usuarios con diferentes roles.
+* Permisos diferenciados para administradores y trabajadores.
+* Conexión del frontend con una API.
+* Persistencia de la información en una base de datos.
 
-## Expanding the ESLint configuration
+## Tecnologías utilizadas
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+### Frontend
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+* HTML
+* CSS
+* JavaScript
+* TypeScript
+* React
+* Vite
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+### Backend
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+* Node.js
+* Express
+* PostgreSQL
+* API REST
+* Autenticación mediante JWT
 
-```
+### Herramientas
 
-You can also install [eslint-plugin-react-x](https://npmx.dev/package/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://npmx.dev/package/eslint-plugin-react-dom) for React-specific lint rules:
+* Git
+* GitHub
+* Railway
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## Mi trabajo en el proyecto
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+Mi trabajo se centró principalmente en el desarrollo del frontend con React y TypeScript. Implementé los componentes visuales, formularios, filtros, gestión de estados y la comunicación de la interfaz con la API.
 
-```
+La parte backend fue desarrollada como parte de mi proceso de aprendizaje con asistencia técnica. Actualmente continúo estudiando backend para comprender y desarrollar esta parte de forma autónoma.
+
+## Objetivo del proyecto
+
+FixFlow nació como un proyecto de aprendizaje y como una solución para centralizar la gestión de incidencias, usuarios y asignaciones en una aplicación web accesible y fácil de utilizar.
+
+## Autor
+
+Yoelvis Hernández
+GitHub: https://github.com/yoelvishernandez86-droid
