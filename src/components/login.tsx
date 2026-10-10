@@ -41,7 +41,10 @@ function Login({ onLogin }: LoginProps) {
   return (
     <form className="login-form" onSubmit={iniciarSesion}>
       <h1>Iniciar sesión</h1>
-
+      <p>
+        Para iniciar sesion como admin debes introducir admin@fixflow.com con
+        contraseña anilorak ... luego de eso puedes hacer tu propio usuario ;)
+      </p>
       <input
         type="email"
         placeholder="Email"
