@@ -12,7 +12,7 @@ function CrearUsuarios() {
 
     const token = localStorage.getItem("token");
 
-    const respuesta = await fetch("http://localhost:3000/api/usuarios", {
+    const respuesta = await fetch("https://fixflow-production-8cda.up.railway.app/api/usuarios", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

@@ -12,7 +12,7 @@ function Login({ onLogin }: LoginProps) {
   const iniciarSesion = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const respuesta = await fetch("http://localhost:3000/api/login", {
+    const respuesta = await fetch("https://fixflow-production-8cda.up.railway.app/api/login", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

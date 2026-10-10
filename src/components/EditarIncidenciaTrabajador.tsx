@@ -21,7 +21,7 @@ function EditarIncidenciaTrabajador({
       const token = localStorage.getItem("token");
 
       const respuesta = await fetch(
-        `http://localhost:3000/api/incidencias/${incidencia.id}/trabajador`,
+        `https://fixflow-production-8cda.up.railway.app/api/incidencias/${incidencia.id}/trabajador`,
         {
           method: "PATCH",
           headers: {
